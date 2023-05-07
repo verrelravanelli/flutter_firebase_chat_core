@@ -28,8 +28,7 @@ class FirebaseChatCore {
   User? firebaseUser = FirebaseAuth.instance.currentUser;
 
   /// Singleton instance.
-  static final FirebaseChatCore instance =
-      FirebaseChatCore._privateConstructor();
+  static final FirebaseChatCore instance = FirebaseChatCore._privateConstructor();
 
   /// Gets proper [FirebaseFirestore] instance.
   FirebaseFirestore getFirebaseFirestore() => config.firebaseAppName != null
@@ -66,9 +65,7 @@ class FirebaseChatCore {
 
     final roomUsers = [types.User.fromJson(currentUser)] + users;
 
-    final room = await getFirebaseFirestore()
-        .collection(config.roomsCollectionName)
-        .add({
+    final room = await getFirebaseFirestore().collection(config.roomsCollectionName).add({
       'createdAt': FieldValue.serverTimestamp(),
       'imageUrl': imageUrl,
       'metadata': metadata,
@@ -126,6 +123,10 @@ class FirebaseChatCore {
       ))
           .first;
 
+      await getFirebaseFirestore().doc(room.id).update({
+        'metadata': metadata,
+      });
+
       return room;
     }
 
@@ -160,9 +161,7 @@ class FirebaseChatCore {
     final users = [types.User.fromJson(currentUser), otherUser];
 
     // Create new room with sorted user ids array.
-    final room = await getFirebaseFirestore()
-        .collection(config.roomsCollectionName)
-        .add({
+    final room = await getFirebaseFirestore().collection(config.roomsCollectionName).add({
       'createdAt': FieldValue.serverTimestamp(),
       'imageUrl': null,
       'metadata': metadata,
@@ -184,10 +183,7 @@ class FirebaseChatCore {
   /// Creates [types.User] in Firebase to store name and avatar used on
   /// rooms list
   Future<void> createUserInFirestore(types.User user) async {
-    await getFirebaseFirestore()
-        .collection(config.usersCollectionName)
-        .doc(user.id)
-        .set({
+    await getFirebaseFirestore().collection(config.usersCollectionName).doc(user.id).set({
       'createdAt': FieldValue.serverTimestamp(),
       'firstName': user.firstName,
       'imageUrl': user.imageUrl,
@@ -209,18 +205,12 @@ class FirebaseChatCore {
 
   /// Removes room document.
   Future<void> deleteRoom(String roomId) async {
-    await getFirebaseFirestore()
-        .collection(config.roomsCollectionName)
-        .doc(roomId)
-        .delete();
+    await getFirebaseFirestore().collection(config.roomsCollectionName).doc(roomId).delete();
   }
 
   /// Removes [types.User] from `users` collection in Firebase.
   Future<void> deleteUserFromFirestore(String userId) async {
-    await getFirebaseFirestore()
-        .collection(config.usersCollectionName)
-        .doc(userId)
-        .delete();
+    await getFirebaseFirestore().collection(config.usersCollectionName).doc(userId).delete();
   }
 
   /// Returns a stream of messages from Firebase for a given room.
@@ -409,10 +399,7 @@ class FirebaseChatCore {
 
     final roomMap = room.toJson();
     roomMap.removeWhere((key, value) =>
-        key == 'createdAt' ||
-        key == 'id' ||
-        key == 'lastMessages' ||
-        key == 'users');
+        key == 'createdAt' || key == 'id' || key == 'lastMessages' || key == 'users');
 
     if (room.type == types.RoomType.direct) {
       roomMap['imageUrl'] = null;
@@ -423,10 +410,7 @@ class FirebaseChatCore {
       final messageMap = m.toJson();
 
       messageMap.removeWhere((key, value) =>
-          key == 'author' ||
-          key == 'createdAt' ||
-          key == 'id' ||
-          key == 'updatedAt');
+          key == 'author' || key == 'createdAt' || key == 'id' || key == 'updatedAt');
 
       messageMap['authorId'] = m.author.id;
 
@@ -444,10 +428,7 @@ class FirebaseChatCore {
   /// Returns a stream of all users from Firebase.
   Stream<List<types.User>> users() {
     if (firebaseUser == null) return const Stream.empty();
-    return getFirebaseFirestore()
-        .collection(config.usersCollectionName)
-        .snapshots()
-        .map(
+    return getFirebaseFirestore().collection(config.usersCollectionName).snapshots().map(
           (snapshot) => snapshot.docs.fold<List<types.User>>(
             [],
             (previousValue, doc) {
