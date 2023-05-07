@@ -123,7 +123,7 @@ class FirebaseChatCore {
       ))
           .first;
 
-      await getFirebaseFirestore().doc(room.id).update({
+      await getFirebaseFirestore().collection(config.roomsCollectionName).doc(room.id).update({
         'metadata': metadata,
       });
 
