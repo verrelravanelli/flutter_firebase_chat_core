@@ -91,8 +91,7 @@ Future<types.Room> processRoomDocument(
       );
 
       imageUrl = otherUser['imageUrl'] as String?;
-      name = '${otherUser['firstName'] ?? ''} ${otherUser['lastName'] ?? ''}'
-          .trim();
+      name = '${otherUser['firstName'] ?? ''} ${otherUser['lastName'] ?? ''}'.trim();
     } catch (e) {
       // Do nothing if other user is not found, because he should be found.
       // Consider falling back to some default values.
@@ -110,7 +109,13 @@ Future<types.Room> processRoomDocument(
         orElse: () => {'id': lm['authorId'] as String},
       );
 
+      final receiver = users.firstWhere(
+        (u) => u['id'] == lm['receiver'],
+        orElse: () => {'id': lm['receiver'] as String},
+      );
+
       lm['author'] = author;
+      lm['receiver'] = receiver;
       lm['createdAt'] = lm['createdAt']?.millisecondsSinceEpoch;
       lm['id'] = lm['id'] ?? '';
       lm['updatedAt'] = lm['updatedAt']?.millisecondsSinceEpoch;
