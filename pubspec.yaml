@@ -16,9 +16,7 @@ dependencies:
   firebase_core: ^2.1.1
   flutter:
     sdk: flutter
-  flutter_chat_types:
-    git:
-      url: https://github.com/verrelravanelli/flutter_chat_types
+  flutter_chat_types: ^3.6.0
   meta: ^1.8.0
 
 dev_dependencies:
