@@ -5,6 +5,7 @@ description: >
 version: 1.6.4
 homepage: https://flyer.chat
 repository: https://github.com/flyerhq/flutter_firebase_chat_core
+publish_to: none
 
 environment:
   sdk: ">=2.18.0 <3.0.0"
@@ -16,7 +17,9 @@ dependencies:
   firebase_core: ^2.1.1
   flutter:
     sdk: flutter
-  flutter_chat_types: ^3.6.0
+  flutter_chat_types:
+    git:
+      url: https://github.com/verrelravanelli/flutter_chat_types
   meta: ^1.8.0
 
 dev_dependencies:
