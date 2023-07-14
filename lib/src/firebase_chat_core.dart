@@ -253,7 +253,13 @@ class FirebaseChatCore {
                 orElse: () => types.User(id: data['authorId'] as String),
               );
 
+              final receiver = room.users.firstWhere(
+                (u) => u.id == data['receiver'],
+                orElse: () => types.User(id: data['receiver'] as String),
+              );
+
               data['author'] = author.toJson();
+              data['receiver'] = receiver.toJson();
               data['createdAt'] = data['createdAt']?.millisecondsSinceEpoch;
               data['id'] = doc.id;
               data['updatedAt'] = data['updatedAt']?.millisecondsSinceEpoch;
