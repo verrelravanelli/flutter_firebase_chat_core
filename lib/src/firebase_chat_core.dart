@@ -197,10 +197,7 @@ class FirebaseChatCore {
 
   /// Removes message document.
   Future<void> deleteMessage(String roomId, String messageId) async {
-    await getFirebaseFirestore()
-        .collection('${config.roomsCollectionName}/$roomId/messages')
-        .doc(messageId)
-        .delete();
+    await getFirebaseFirestore().collection('${config.roomsCollectionName}/$roomId/messages').doc(messageId).delete();
   }
 
   /// Removes room document.
@@ -273,11 +270,7 @@ class FirebaseChatCore {
 
     if (fu == null) return const Stream.empty();
 
-    return getFirebaseFirestore()
-        .collection(config.roomsCollectionName)
-        .doc(roomId)
-        .snapshots()
-        .asyncMap(
+    return getFirebaseFirestore().collection(config.roomsCollectionName).doc(roomId).snapshots().asyncMap(
           (doc) => processRoomDocument(
             doc,
             fu,
@@ -307,9 +300,7 @@ class FirebaseChatCore {
             .collection(config.roomsCollectionName)
             .where('userIds', arrayContains: fu.uid)
             .orderBy('updatedAt', descending: true)
-        : getFirebaseFirestore()
-            .collection(config.roomsCollectionName)
-            .where('userIds', arrayContains: fu.uid);
+        : getFirebaseFirestore().collection(config.roomsCollectionName).where('userIds', arrayContains: fu.uid);
 
     return collection.snapshots().asyncMap(
           (query) => processRoomsQuery(
@@ -324,7 +315,7 @@ class FirebaseChatCore {
   /// Sends a message to the Firestore. Accepts any partial message and a
   /// room ID. If arbitraty data is provided in the [partialMessage]
   /// does nothing.
-  void sendMessage(dynamic partialMessage, String roomId) async {
+  void sendMessage(dynamic partialMessage, String roomId, String receiverId) async {
     if (firebaseUser == null) return;
 
     types.Message? message;
@@ -359,12 +350,11 @@ class FirebaseChatCore {
       final messageMap = message.toJson();
       messageMap.removeWhere((key, value) => key == 'author' || key == 'id');
       messageMap['authorId'] = firebaseUser!.uid;
+      messageMap['receiver'] = receiverId;
       messageMap['createdAt'] = FieldValue.serverTimestamp();
       messageMap['updatedAt'] = FieldValue.serverTimestamp();
 
-      await getFirebaseFirestore()
-          .collection('${config.roomsCollectionName}/$roomId/messages')
-          .add(messageMap);
+      await getFirebaseFirestore().collection('${config.roomsCollectionName}/$roomId/messages').add(messageMap);
 
       await getFirebaseFirestore()
           .collection(config.roomsCollectionName)
@@ -398,8 +388,7 @@ class FirebaseChatCore {
     if (firebaseUser == null) return;
 
     final roomMap = room.toJson();
-    roomMap.removeWhere((key, value) =>
-        key == 'createdAt' || key == 'id' || key == 'lastMessages' || key == 'users');
+    roomMap.removeWhere((key, value) => key == 'createdAt' || key == 'id' || key == 'lastMessages' || key == 'users');
 
     if (room.type == types.RoomType.direct) {
       roomMap['imageUrl'] = null;
@@ -409,8 +398,8 @@ class FirebaseChatCore {
     roomMap['lastMessages'] = room.lastMessages?.map((m) {
       final messageMap = m.toJson();
 
-      messageMap.removeWhere((key, value) =>
-          key == 'author' || key == 'createdAt' || key == 'id' || key == 'updatedAt');
+      messageMap
+          .removeWhere((key, value) => key == 'author' || key == 'createdAt' || key == 'id' || key == 'updatedAt');
 
       messageMap['authorId'] = m.author.id;
 
@@ -419,10 +408,7 @@ class FirebaseChatCore {
     roomMap['updatedAt'] = FieldValue.serverTimestamp();
     roomMap['userIds'] = room.users.map((u) => u.id).toList();
 
-    await getFirebaseFirestore()
-        .collection(config.roomsCollectionName)
-        .doc(room.id)
-        .update(roomMap);
+    await getFirebaseFirestore().collection(config.roomsCollectionName).doc(room.id).update(roomMap);
   }
 
   /// Returns a stream of all users from Firebase.
